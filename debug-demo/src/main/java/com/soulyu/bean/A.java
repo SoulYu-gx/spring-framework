@@ -3,7 +3,7 @@ package com.soulyu.bean;
 /**
  * @author Soul.宇
  */
-public class ABean {
+public class A {
 
 	@Override
 	public String toString() {
