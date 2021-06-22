@@ -520,7 +520,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			// 准备上下文以便刷新, 基础信息的设置, 当前可直接跳过
 			prepareRefresh();
 
-			// 创建bean 工厂，并做基础设置
+			// 创建bean 工厂，解析spring.xml 的信息在此
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// bean工厂的一些前置处理
@@ -549,7 +549,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Check for listener beans and register them. 注册监听
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				// 实例化其他bean（一般为用户配置自定义的bean）
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
@@ -639,6 +639,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getBeanFactory()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+		// 通知子类刷新 beanFactory， 如果没有，则创建
 		refreshBeanFactory();
 		return getBeanFactory();
 	}
@@ -929,7 +930,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
-		// Instantiate all remaining (non-lazy-init) singletons.
+		// 实例化bean
 		beanFactory.preInstantiateSingletons();
 	}
 

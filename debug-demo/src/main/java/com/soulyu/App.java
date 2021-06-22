@@ -9,7 +9,7 @@ public class App {
 	public static void main(String[] args) {
 		ApplicationContext context = new ClassPathXmlApplicationContext("classpath:spring.xml");
 
-		B bBean = (B)context.getBean("bBean");
+		B bBean = (B)context.getBean("b");
 		System.out.println(bBean.toString());
 	}
 }
