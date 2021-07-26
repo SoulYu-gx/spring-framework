@@ -86,7 +86,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/** Set of registered singletons, containing the bean names in registration order. */
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
-	/** Names of beans that are currently in creation. */
+	/** 早期bean */
 	private final Set<String> singletonsCurrentlyInCreation =
 			Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
@@ -162,6 +162,24 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 	}
 
+	/**
+	 * Add the given singleton factory for building the specified singleton
+	 * if necessary.
+	 * <p>To be called for eager registration of singletons, e.g. to be able to
+	 * resolve circular references.
+	 * @param beanName the name of the bean
+	 * @param the factory for the singleton object
+	 */
+	protected void addEarlySingletonObjects(String beanName, Object bean) {
+		Assert.notNull(bean, "Singleton factory must not be null");
+		synchronized (this.singletonObjects) {
+			if (!this.singletonObjects.containsKey(beanName)) {
+				this.earlySingletonObjects.put(beanName, bean);
+				this.registeredSingletons.add(beanName);
+			}
+		}
+	}
+
 	@Override
 	@Nullable
 	public Object getSingleton(String beanName) {
@@ -176,29 +194,40 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param allowEarlyReference whether early references should be created or not
 	 * @return the registered singleton object, or {@code null} if none found
 	 */
+	// @Nullable
+	// protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+	// 	// 查询一级缓存中的是否有创建完的bean，如果没有并且准备获取的bean是创建中的bean，那么去二级缓存中取
+	// 	Object singletonObject = this.singletonObjects.get(beanName);
+	// 	if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+	// 		singletonObject = this.earlySingletonObjects.get(beanName);
+	// 		if (singletonObject == null && allowEarlyReference) {
+	// 			synchronized (this.singletonObjects) {
+	// 				// Consistent creation of early reference within full singleton lock
+	// 				singletonObject = this.singletonObjects.get(beanName);
+	// 				if (singletonObject == null) {
+	// 					singletonObject = this.earlySingletonObjects.get(beanName);
+	// 					if (singletonObject == null) {
+	// 						ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+	// 						if (singletonFactory != null) {
+	// 							singletonObject = singletonFactory.getObject();
+	// 							this.earlySingletonObjects.put(beanName, singletonObject);
+	// 							this.singletonFactories.remove(beanName);
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	return singletonObject;
+	// }
+
+
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
-		// Quick check for existing instance without full singleton lock
+		// 查询一级缓存中的是否有创建完的bean，如果没有并且准备获取的bean是创建中的bean，那么去二级缓存中取
 		Object singletonObject = this.singletonObjects.get(beanName);
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			singletonObject = this.earlySingletonObjects.get(beanName);
-			if (singletonObject == null && allowEarlyReference) {
-				synchronized (this.singletonObjects) {
-					// Consistent creation of early reference within full singleton lock
-					singletonObject = this.singletonObjects.get(beanName);
-					if (singletonObject == null) {
-						singletonObject = this.earlySingletonObjects.get(beanName);
-						if (singletonObject == null) {
-							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
-							if (singletonFactory != null) {
-								singletonObject = singletonFactory.getObject();
-								this.earlySingletonObjects.put(beanName, singletonObject);
-								this.singletonFactories.remove(beanName);
-							}
-						}
-					}
-				}
-			}
 		}
 		return singletonObject;
 	}

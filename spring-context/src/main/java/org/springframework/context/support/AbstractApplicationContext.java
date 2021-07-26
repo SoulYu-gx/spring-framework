@@ -527,11 +527,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// 空
-				// Allows post-processing of the bean factory in context subclasses.
+				// 子类拓展
 				postProcessBeanFactory(beanFactory);
 
-				// 调用bean的后置处理器
+				// 调用 beanFactory 的后置处理器
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// 注册拦截 bean 创建的 bean 处理器。
@@ -540,16 +539,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 初始化此上下文的消息源。
 				initMessageSource();
 
-				// Initialize event multicaster for this context.
+				// 初始化事件监听多路广播器
 				initApplicationEventMulticaster();
 
-				// Initialize other special beans in specific context subclasses.
+				// 子类拓展
 				onRefresh();
 
-				// Check for listener beans and register them. 注册监听
+				// 注册监听
 				registerListeners();
 
-				// 实例化其他bean（一般为用户配置自定义的bean）
+				// 实例化其他bean （核心）
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
@@ -900,25 +899,27 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * IOC的核心
 	 * Finish the initialization of this context's bean factory,
 	 * initializing all remaining singleton beans.
 	 */
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		// Initialize conversion service for this context.
-		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
-				beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
-			beanFactory.setConversionService(
-					beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+		// 初始化上下文转换服务
+		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) && beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+			beanFactory.setConversionService(beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
 		}
 
 		// Register a default embedded value resolver if no bean post-processor
 		// (such as a PropertyPlaceholderConfigurer bean) registered any before:
 		// at this point, primarily for resolution in annotation attribute values.
+		// 如果beanFactory之前没有注册嵌入值解析器，则注册默认的嵌入值解析器，主要用于注解属性值的解析
 		if (!beanFactory.hasEmbeddedValueResolver()) {
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
 		}
 
 		// Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
+		// 初始化loadTimeWeaverAware实例对象
 		String[] weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);
 		for (String weaverAwareName : weaverAwareNames) {
 			getBean(weaverAwareName);
@@ -928,9 +929,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.setTempClassLoader(null);
 
 		// Allow for caching all bean definition metadata, not expecting further changes.
+		// 冻结所有的bean定义，注册bean定义不会被修改或进一步处理，因为马上要创建Bean实例对象了
 		beanFactory.freezeConfiguration();
 
-		// 实例化bean
+		// 实例化所有剩余（非懒加载）单例对象
 		beanFactory.preInstantiateSingletons();
 	}
 

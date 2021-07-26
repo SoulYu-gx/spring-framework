@@ -1,12 +1,24 @@
 package com.soulyu.bean;
 
 /**
- * @author Soul.宇
+ * @Author soul.yu
+ * @Date 2021/6/16 1:58 下午
+ * @Version 1.0
  */
 public class A {
 
+	private B b;
+
+	public B getB() {
+		return b;
+	}
+
+	public void setB(B b) {
+		this.b = b;
+	}
+
 	@Override
 	public String toString() {
-		return "bean create success";
+		return "A create success";
 	}
 }

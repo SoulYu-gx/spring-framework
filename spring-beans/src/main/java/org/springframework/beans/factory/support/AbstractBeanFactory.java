@@ -243,12 +243,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
 
+		// 解析beanName，主要是解析别名，去掉FactoryBean的前缀"&"
 		String beanName = transformedBeanName(name);
 		Object bean;
 
-		// Eagerly check singleton cache for manually registered singletons.
+		// 尝试从缓存中获取beanName对应的实例（完整的bean或提前暴露出来的bean）
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
+			// 如果beanName的实例存在于缓存中
 			if (logger.isTraceEnabled()) {
 				if (isSingletonCurrentlyInCreation(beanName)) {
 					logger.trace("Returning eagerly cached instance of singleton bean '" + beanName +
@@ -258,18 +260,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			// 返回beanName对应的实例对象（主要用于FactoryBean的特殊处理，普通bean会直接返回sharedInstance本身）
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		} else {
-			// Fail if we're already creating this bean instance:
-			// We're assumably within a circular reference.
+			// scope为prototype的循环依赖校验：如果beanName已经在创建bean实例中，而此时我们又要再一次创建beanName的实例，则代表出现了循环依赖，需要抛出异常
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
-			// Check if bean definition exists in this factory.
+			// 获取parentBeanFactory
 			BeanFactory parentBeanFactory = getParentBeanFactory();
+			// 如果parentBeanFactory存在，并且beanName在当前beanFactory不存在bean定义，则尝试从parentBeanFactory中获取bean实例
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				// Not found -> check parent.
+				// 将别名解析成真正的beanName
 				String nameToLookup = originalBeanName(name);
 				if (parentBeanFactory instanceof AbstractBeanFactory) {
 					return ((AbstractBeanFactory) parentBeanFactory).doGetBean(
@@ -289,10 +293,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			if (!typeCheckOnly) {
+				// 如果不是仅仅做类型检测，而是创建bean实例，这里要将beanName放到alreadyCreate缓存
 				markBeanAsCreated(beanName);
 			}
 
 			try {
+				// 重新获取beanName的MergedBeanDefinition（上面 markBeanAsCreated() 把MergedBeanDefinition删除了，获取一个最新的）
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 

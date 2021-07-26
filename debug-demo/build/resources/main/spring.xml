@@ -6,8 +6,9 @@
 	    http://www.springframework.org/schema/beans/spring-beans.xsd
 ">
 
-	<bean id="loginService" class="com.soulyu.bean.ABean"/>
+	<bean id="a" class="com.soulyu.bean.A"/>
 
-
-
+	<bean id="b" class="com.soulyu.bean.B">
+		<property name="a" ref="a"/>
+	</bean>
 </beans>

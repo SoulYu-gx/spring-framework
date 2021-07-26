@@ -46,6 +46,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Provider;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.factory.BeanCreationException;
@@ -868,12 +869,17 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+//		TODO 创建 beanDefinitionNames 的副本 beanNames 用于后续的遍历，以允许 init 等方法注册新的 bean 定义
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
 		// Trigger initialization of all non-lazy singleton beans...
+//		TODO 遍历 beanNames，触发所有非懒加载单利bean初始化
 		for (String beanName : beanNames) {
+//			TODO 获取 beanName 对应的 MergedBeanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+//			TODO bd 对应的 Bean 实例：非抽象类 && 是单例 && 非懒加载
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// 判断当前 beanName 是否为 FactoryBean
 				if (isFactoryBean(beanName)) {
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
@@ -894,6 +900,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 				else {
+					// beanName 不是 FactoryBean，通过 beanName 获取 bean 的实例
 					getBean(beanName);
 				}
 			}
