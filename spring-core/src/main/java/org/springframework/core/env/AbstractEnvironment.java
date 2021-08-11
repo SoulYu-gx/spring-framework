@@ -566,6 +566,13 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 		return this.propertyResolver.resolvePlaceholders(text);
 	}
 
+	/**
+	 * environment对象实例化的时候有默认值
+	 * @see PropertySourcesPropertyResolver#PropertySourcesPropertyResolver(org.springframework.core.env.PropertySources)
+	 * @param text
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
 	@Override
 	public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
 		return this.propertyResolver.resolveRequiredPlaceholders(text);

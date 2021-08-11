@@ -196,7 +196,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Nullable
 	private Thread shutdownHook;
 
-	/** ResourcePatternResolver used by this context. */
+	/**
+	 * @see PathMatchingResourcePatternResolver
+	 */
 	private ResourcePatternResolver resourcePatternResolver;
 
 	/** LifecycleProcessor for managing the lifecycle of beans within this context. */
@@ -308,10 +310,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * Return the {@code Environment} for this application context in configurable
-	 * form, allowing for further customization.
-	 * <p>If none specified, a default environment will be initialized via
+	 * 获取环境，没有则创建默认环境
 	 * {@link #createEnvironment()}.
+	 * @see StandardEnvironment
 	 */
 	@Override
 	public ConfigurableEnvironment getEnvironment() {
@@ -322,11 +323,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * Create and return a new {@link StandardEnvironment}.
-	 * <p>Subclasses may override this method in order to supply
-	 * a custom {@link ConfigurableEnvironment} implementation.
+	 * 创建环境配置
+	 * {@link StandardEnvironment}.
 	 */
 	protected ConfigurableEnvironment createEnvironment() {
+		// 创建标准环境
 		return new StandardEnvironment();
 	}
 

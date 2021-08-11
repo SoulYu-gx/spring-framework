@@ -76,10 +76,10 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	}
 
 	/**
-	 * 创建 ClassPathXmlApplicationContext 对象，并自动刷新上下文
-	 * Create a new ClassPathXmlApplicationContext, loading the definitions
-	 * from the given XML file and automatically refreshing the context.
-	 * @param configLocation resource location
+	 * 实例化上下文对象
+	 * 1、开启自动刷新
+	 * 2、无父类
+	 * @param configLocation xml文件的位置
 	 * @throws BeansException if context creation failed
 	 */
 	public ClassPathXmlApplicationContext(String configLocation) throws BeansException {
@@ -128,7 +128,6 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * 使用给定的父级创建一个新的 ClassPathXmlApplicationContext，从给定的 XML 文件加载定义。
 	 * @param configLocations array of resource locations
 	 * @param refresh 是否自动刷新上下文，加载所有 bean 定义并创建所有单例。
-	 * Alternatively, call refresh manually after further configuring the context.
 	 * @param parent the parent context
 	 * @throws BeansException if context creation failed
 	 * @see #refresh()
@@ -138,7 +137,10 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 			throws BeansException {
 
 		super(parent);
-		// 解析配置文件所在的位置，放入 org.springframework.context.support.AbstractRefreshableConfigApplicationContext 的 configLocations
+		/**
+		 * 调用父类方法，解析配置文件位置放入下属性
+		 * {@link org.springframework.context.support.AbstractRefreshableConfigApplicationContext#configLocations}
+		 */
 		setConfigLocations(configLocations);
 		if (refresh) {
 			// 加载所有的bean定义，并创建实例 AbstractApplicationContext
