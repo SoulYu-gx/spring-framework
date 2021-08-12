@@ -67,17 +67,15 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	}
 
 	/**
-	 * Create a new {@code ClassPathResource} for {@code ClassLoader} usage.
-	 * A leading slash will be removed, as the ClassLoader resource access
-	 * methods will not accept it.
-	 * @param path the absolute path within the classpath
-	 * @param classLoader the class loader to load the resource with,
-	 * or {@code null} for the thread context class loader
+	 * 获取一个resource
+	 * @param path 文件位置
+	 * @param classLoader 类加载器，如果为空，就获取一个默认的
 	 * @see ClassLoader#getResourceAsStream(String)
 	 */
 	public ClassPathResource(String path, @Nullable ClassLoader classLoader) {
 		Assert.notNull(path, "Path must not be null");
 		String pathToUse = StringUtils.cleanPath(path);
+		// 去掉 /
 		if (pathToUse.startsWith("/")) {
 			pathToUse = pathToUse.substring(1);
 		}
@@ -160,7 +158,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	}
 
 	/**
-	 * This implementation opens an InputStream for the given class path resource.
+	 * 获取resource的输入流，利用
 	 * @see java.lang.ClassLoader#getResourceAsStream(String)
 	 * @see java.lang.Class#getResourceAsStream(String)
 	 */
@@ -171,6 +169,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 			is = this.clazz.getResourceAsStream(this.path);
 		}
 		else if (this.classLoader != null) {
+			// 获取输入流
 			is = this.classLoader.getResourceAsStream(this.path);
 		}
 		else {

@@ -55,16 +55,21 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
 
 	private static final Log logger = LogFactory.getLog(ResourceEntityResolver.class);
 
+	/**
+	 * 资源解析器，
+	 * p: 与XmlBeanDefinitionReader为同一个解析器
+	 * @see org.springframework.context.support.AbstractXmlApplicationContext#loadBeanDefinitions(org.springframework.beans.factory.support.DefaultListableBeanFactory)
+	 * @see ResourceEntityResolver#ResourceEntityResolver(org.springframework.core.io.ResourceLoader)
+	 */
 	private final ResourceLoader resourceLoader;
 
 
 	/**
-	 * Create a ResourceEntityResolver for the specified ResourceLoader
-	 * (usually, an ApplicationContext).
-	 * @param resourceLoader the ResourceLoader (or ApplicationContext)
-	 * to load XML entity includes with
+	 * 创建一个资源实体解析器对象
+	 * @param resourceLoader 资源解析器（现在为当前上下文对象）
 	 */
 	public ResourceEntityResolver(ResourceLoader resourceLoader) {
+		// 父类构造
 		super(resourceLoader.getClassLoader());
 		this.resourceLoader = resourceLoader;
 	}

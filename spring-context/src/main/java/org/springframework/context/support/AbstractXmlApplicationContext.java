@@ -45,106 +45,111 @@ import org.springframework.lang.Nullable;
  */
 public abstract class AbstractXmlApplicationContext extends AbstractRefreshableConfigApplicationContext {
 
-	private boolean validating = true;
+    private boolean validating = true;
 
 
-	/**
-	 * Create a new AbstractXmlApplicationContext with no parent.
-	 */
-	public AbstractXmlApplicationContext() {
-	}
+    /**
+     * Create a new AbstractXmlApplicationContext with no parent.
+     */
+    public AbstractXmlApplicationContext() {
+    }
 
-	/**
-	 * Create a new AbstractXmlApplicationContext with the given parent context.
-	 * @param parent the parent context
-	 */
-	public AbstractXmlApplicationContext(@Nullable ApplicationContext parent) {
-		super(parent);
-	}
-
-
-	/**
-	 * Set whether to use XML validation. Default is {@code true}.
-	 */
-	public void setValidating(boolean validating) {
-		this.validating = validating;
-	}
+    /**
+     * Create a new AbstractXmlApplicationContext with the given parent context.
+     *
+     * @param parent the parent context
+     */
+    public AbstractXmlApplicationContext(@Nullable ApplicationContext parent) {
+        super(parent);
+    }
 
 
-	/**
-	 * Loads the bean definitions via an XmlBeanDefinitionReader.
-	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
-	 * @see #initBeanDefinitionReader
-	 * @see #loadBeanDefinitions
-	 */
-	@Override
-	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
-		// Create a new XmlBeanDefinitionReader for the given BeanFactory.
-		// 创建bean xml订阅处理器，
-		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
+    /**
+     * Set whether to use XML validation. Default is {@code true}.
+     */
+    public void setValidating(boolean validating) {
+        this.validating = validating;
+    }
 
-		// Configure the bean definition reader with this context's
-		// resource loading environment.
-		beanDefinitionReader.setEnvironment(this.getEnvironment());
-		beanDefinitionReader.setResourceLoader(this);
-		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
-		// Allow a subclass to provide custom initialization of the reader,
-		// then proceed with actually loading the bean definitions.
-		initBeanDefinitionReader(beanDefinitionReader);
-		// 加载出spring.xml, 解析bean
-		loadBeanDefinitions(beanDefinitionReader);
-	}
+    /**
+     * 加载bean定义，放入bean工厂注册表中
+     * 重写父类方法 {@link AbstractRefreshableApplicationContext#loadBeanDefinitions(org.springframework.beans.factory.support.DefaultListableBeanFactory)}
+     * DefaultListableBeanFactory
+     *
+     * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
+     * @see #initBeanDefinitionReader
+     * @see #loadBeanDefinitions
+     */
+    @Override
+    protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+        // 创建xml bean定义阅读器，
+        XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
 
-	/**
-	 * Initialize the bean definition reader used for loading the bean
-	 * definitions of this context. Default implementation is empty.
-	 * <p>Can be overridden in subclasses, e.g. for turning off XML validation
-	 * or using a different XmlBeanDefinitionParser implementation.
-	 * @param reader the bean definition reader used by this context
-	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader#setDocumentReaderClass
-	 */
-	protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
-		reader.setValidating(this.validating);
-	}
+        // 覆盖阅读器的环境为当前上下文环境
+        beanDefinitionReader.setEnvironment(this.getEnvironment());
+        // 覆盖资源解析器为当前对象（当前上下文对象）
+        beanDefinitionReader.setResourceLoader(this);
+        // 设置试题解析器
+        beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
-	/**
-	 * // 加载spring.xml，并解析出bean
-	 * Load the bean definitions with the given XmlBeanDefinitionReader.
-	 * <p>The lifecycle of the bean factory is handled by the {@link #refreshBeanFactory}
-	 * method; hence this method is just supposed to load and/or register bean definitions.
-	 * @param reader the XmlBeanDefinitionReader to use
-	 * @throws BeansException in case of bean registration errors
-	 * @throws IOException if the required XML document isn't found
-	 * @see #refreshBeanFactory
-	 * @see #getConfigLocations
-	 * @see #getResources
-	 * @see #getResourcePatternResolver
-	 */
-	protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
-		Resource[] configResources = getConfigResources();
-		if (configResources != null) {
-			reader.loadBeanDefinitions(configResources);
-		}
+        // 初始化bean定义阅读区（开启xml验证）
+        initBeanDefinitionReader(beanDefinitionReader);
+        // 从用户自定义xml文件中加载bean定义
+        loadBeanDefinitions(beanDefinitionReader);
+    }
 
-		// 获取 setConfigLocations 方法设置好的config信息
-		String[] configLocations = getConfigLocations();
-		if (configLocations != null) {
-			reader.loadBeanDefinitions(configLocations);
-		}
-	}
+    /**
+     * 初始化加载上下文中bean的bean定义阅读器
+     * <p>可以在子类中覆盖，例如用于关闭 XML 验证或使用不同的 XmlBeanDefinitionParser 实现。
+     *
+     * @param reader
+     * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader#setDocumentReaderClass
+     */
+    protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
+        // 开启xml验证
+        reader.setValidating(this.validating);
+    }
 
-	/**
-	 * Return an array of Resource objects, referring to the XML bean definition
-	 * files that this context should be built with.
-	 * <p>The default implementation returns {@code null}. Subclasses can override
-	 * this to provide pre-built Resource objects rather than location Strings.
-	 * @return an array of Resource objects, or {@code null} if none
-	 * @see #getConfigLocations()
-	 */
-	@Nullable
-	protected Resource[] getConfigResources() {
-		return null;
-	}
+    /**
+     * 利用指定的 XmlBeanDefinitionReader 从用户xml文件中加载bean定义
+     * <p>bean 工厂的生命周期由 {@link #refreshBeanFactory} 方法处理；因此这个方法只是应该加载和/或注册 bean 定义。
+     *
+     * @param reader xml bean定义阅读起，上游创建
+     * @throws BeansException in case of bean registration errors
+     * @throws IOException    if the required XML document isn't found
+     * @see #refreshBeanFactory
+     * @see #getConfigLocations
+     * @see #getResources
+     * @see #getResourcePatternResolver
+     */
+    protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
+        // 获取资源配置
+        Resource[] configResources = getConfigResources();
+        if (configResources != null) {
+            reader.loadBeanDefinitions(configResources);
+        }
+
+        // 获取配置信息，refresh方法之前已在上下文设置好
+        String[] configLocations = getConfigLocations();
+        if (configLocations != null) {
+            // 使用阅读器加载bean 定义
+            reader.loadBeanDefinitions(configLocations);
+        }
+    }
+
+    /**
+     * Return an array of Resource objects, referring to the XML bean definition
+     * files that this context should be built with.
+     * <p>The default implementation returns {@code null}. Subclasses can override
+     * this to provide pre-built Resource objects rather than location Strings.
+     *
+     * @return an array of Resource objects, or {@code null} if none
+     * @see #getConfigLocations()
+     */
+    @Nullable
+    protected Resource[] getConfigResources() {
+        return null;
+    }
 
 }

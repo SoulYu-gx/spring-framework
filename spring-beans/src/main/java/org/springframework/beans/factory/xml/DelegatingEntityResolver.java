@@ -44,19 +44,26 @@ public class DelegatingEntityResolver implements EntityResolver {
 	/** Suffix for schema definition files. */
 	public static final String XSD_SUFFIX = ".xsd";
 
-
+	/**
+	 * 实体解析器
+	 * 1、@see DelegatingEntityResolver#DelegatingEntityResolver(java.lang.ClassLoader)
+	 * 	  instance {@link BeansDtdResolver}
+	 */
 	private final EntityResolver dtdResolver;
 
+	/**
+	 * 调度解析器
+	 * 1、@see DelegatingEntityResolver#DelegatingEntityResolver(java.lang.ClassLoader)
+	 * 	instance {@link PluggableSchemaResolver}
+	 */
 	private final EntityResolver schemaResolver;
 
 
 	/**
-	 * Create a new DelegatingEntityResolver that delegates to
-	 * a default {@link BeansDtdResolver} and a default {@link PluggableSchemaResolver}.
-	 * <p>Configures the {@link PluggableSchemaResolver} with the supplied
-	 * {@link ClassLoader}.
-	 * @param classLoader the ClassLoader to use for loading
-	 * (can be {@code null}) to use the default ClassLoader)
+	 * 创建委托试题解析器
+	 * 1、创建 beans dtd 解析器
+	 * 2、创建可插拔架构解析器 参数：类加载器
+	 * @param classLoader 类加载器（阅读器的加载器）
 	 */
 	public DelegatingEntityResolver(@Nullable ClassLoader classLoader) {
 		this.dtdResolver = new BeansDtdResolver();

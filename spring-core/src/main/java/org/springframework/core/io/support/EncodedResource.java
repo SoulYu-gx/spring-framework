@@ -44,6 +44,10 @@ import org.springframework.util.ObjectUtils;
  */
 public class EncodedResource implements InputStreamSource {
 
+	/**
+	 * 资源
+	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader#loadBeanDefinitions(org.springframework.core.io.Resource)
+	 */
 	private final Resource resource;
 
 	@Nullable
@@ -54,9 +58,8 @@ public class EncodedResource implements InputStreamSource {
 
 
 	/**
-	 * Create a new {@code EncodedResource} for the given {@code Resource},
-	 * not specifying an explicit encoding or {@code Charset}.
-	 * @param resource the {@code Resource} to hold (never {@code null})
+	 * 创建一个"编码资源"对象"
+	 * @param resource
 	 */
 	public EncodedResource(Resource resource) {
 		this(resource, null, null);

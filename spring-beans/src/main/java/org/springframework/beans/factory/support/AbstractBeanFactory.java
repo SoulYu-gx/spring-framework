@@ -774,11 +774,18 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	// Implementation of ConfigurableBeanFactory interface
 	//---------------------------------------------------------------------
 
+	/**
+	 * 设置父类工厂
+	 * @param parentBeanFactory 父工厂
+	 */
 	@Override
 	public void setParentBeanFactory(@Nullable BeanFactory parentBeanFactory) {
+		// 当前工厂中有父类工厂了，已有的父类工厂不能和要设置的父类工厂为同一个对象
 		if (this.parentBeanFactory != null && this.parentBeanFactory != parentBeanFactory) {
 			throw new IllegalStateException("Already associated with parent BeanFactory: " + this.parentBeanFactory);
 		}
+
+		// 不能设置自己为自己的父类对象
 		if (this == parentBeanFactory) {
 			throw new IllegalStateException("Cannot set parent bean factory to self");
 		}

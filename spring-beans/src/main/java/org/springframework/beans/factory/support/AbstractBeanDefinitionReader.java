@@ -57,6 +57,10 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	 */
 	private final BeanDefinitionRegistry registry;
 
+	/**
+	 * 资源解析器
+	 * @see AbstractBeanDefinitionReader#AbstractBeanDefinitionReader(org.springframework.beans.factory.support.BeanDefinitionRegistry)
+	 */
 	@Nullable
 	private ResourceLoader resourceLoader;
 
@@ -69,19 +73,8 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
 
 	/**
-	 * Create a new AbstractBeanDefinitionReader for the given bean factory.
-	 * <p>If the passed-in bean factory does not only implement the BeanDefinitionRegistry
-	 * interface but also the ResourceLoader interface, it will be used as default
-	 * ResourceLoader as well. This will usually be the case for
-	 * {@link org.springframework.context.ApplicationContext} implementations.
-	 * <p>If given a plain BeanDefinitionRegistry, the default ResourceLoader will be a
-	 * {@link org.springframework.core.io.support.PathMatchingResourcePatternResolver}.
-	 * <p>If the passed-in bean factory also implements {@link EnvironmentCapable} its
-	 * environment will be used by this reader.  Otherwise, the reader will initialize and
-	 * use a {@link StandardEnvironment}. All ApplicationContext implementations are
-	 * EnvironmentCapable, while normal BeanFactory implementations are not.
-	 * @param registry the BeanFactory to load bean definitions into,
-	 * in the form of a BeanDefinitionRegistry
+	 * 创建bean定义阅读器，设置上
+	 * @param registry 上下文中的bean工厂
 	 * @see #setResourceLoader
 	 * @see #setEnvironment
 	 */
@@ -89,11 +82,12 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		this.registry = registry;
 
-		// Determine ResourceLoader to use.
+		// 如果bean工厂非 ResourceLoader 子类，那么为 resourceLoader 设置默认的路径匹配资源解析器
 		if (this.registry instanceof ResourceLoader) {
 			this.resourceLoader = (ResourceLoader) this.registry;
 		}
 		else {
+			// 路径匹配资源解析器
 			this.resourceLoader = new PathMatchingResourcePatternResolver();
 		}
 
@@ -102,6 +96,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			this.environment = ((EnvironmentCapable) this.registry).getEnvironment();
 		}
 		else {
+			// 创建默认的标准环境
 			this.environment = new StandardEnvironment();
 		}
 	}
@@ -184,6 +179,12 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	}
 
 
+	/**
+	 * 加载bean定义
+	 * @param resources
+	 * @return
+	 * @throws BeanDefinitionStoreException
+	 */
 	@Override
 	public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
 		Assert.notNull(resources, "Resource array must not be null");
@@ -194,27 +195,30 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		return count;
 	}
 
+	/**
+	 * 解析单个路径的xml bean定义
+	 * @param location 资源路径
+	 * @return
+	 * @throws BeanDefinitionStoreException
+	 */
 	@Override
 	public int loadBeanDefinitions(String location) throws BeanDefinitionStoreException {
 		return loadBeanDefinitions(location, null);
 	}
 
 	/**
-	 * Load bean definitions from the specified resource location.
-	 * <p>The location can also be a location pattern, provided that the
-	 * ResourceLoader of this bean definition reader is a ResourcePatternResolver.
-	 * @param location the resource location, to be loaded with the ResourceLoader
-	 * (or ResourcePatternResolver) of this bean definition reader
-	 * @param actualResources a Set to be filled with the actual Resource objects
-	 * that have been resolved during the loading process. May be {@code null}
-	 * to indicate that the caller is not interested in those Resource objects.
-	 * @return the number of bean definitions found
+	 * 从指定的资源位置加载bean定义
+	 * <p> 位置也可以是位置模式，前提是这个 bean 定义阅读器的 ResourceLoader 是一个 ResourcePatternResolver
+	 * @param location 资源位置
+	 * @param actualResources 要填充实际 Resource 对象的 Set
+	 * @return 返回bean定义数量
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 * @see #getResourceLoader()
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource)
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
 	public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
+		// 获取资源解析器，目前为（当前xml上下文对象）
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
@@ -222,10 +226,10 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		}
 
 		if (resourceLoader instanceof ResourcePatternResolver) {
-			// Resource pattern matching available.
 			try {
+				// 获取resource对象，往下resource贯穿
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
-				// 解析配置文件
+				// 加载bean定义 通过resource
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);
@@ -254,12 +258,19 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		}
 	}
 
+	/**
+	 * 加载bean定义
+	 * @param locations 资源路径数组（spring.xml所在路径）
+	 * @return
+	 * @throws BeanDefinitionStoreException
+	 */
 	@Override
 	public int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException {
 		Assert.notNull(locations, "Location array must not be null");
 		int count = 0;
 		// 循环解析 配置信息
 		for (String location : locations) {
+			// 调用方法重载，单个解析每个资源的bean定义
 			count += loadBeanDefinitions(location);
 		}
 		return count;

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -47,18 +48,29 @@ import org.springframework.util.StringUtils;
  */
 public class DefaultResourceLoader implements ResourceLoader {
 
+	/**
+	 * 类加载器
+	 * @see org.springframework.beans.factory.support.AbstractBeanDefinitionReader#AbstractBeanDefinitionReader(org.springframework.beans.factory.support.BeanDefinitionRegistry)
+	 * @see PathMatchingResourcePatternResolver#PathMatchingResourcePatternResolver()
+	 * @see org.springframework.core.io.DefaultResourceLoader#DefaultResourceLoader()
+	 * @see
+	 */
 	@Nullable
 	private ClassLoader classLoader;
 
+	/**
+	 * 协议解析器
+	 */
 	private final Set<ProtocolResolver> protocolResolvers = new LinkedHashSet<>(4);
 
 	private final Map<Class<?>, Map<Resource, ?>> resourceCaches = new ConcurrentHashMap<>(4);
 
 
 	/**
-	 * Create a new DefaultResourceLoader.
-	 * <p>ClassLoader access will happen using the thread context class loader
-	 * at the time of this ResourceLoader's initialization.
+	 * 创建默认的资源加载器 并设置默认的类加载器
+	 * <P>
+	 *     ClassLoader 访问将在此 ResourceLoader 初始化时使用线程上下文类加载器进行。
+	 * </p>
 	 * @see java.lang.Thread#getContextClassLoader()
 	 */
 	public DefaultResourceLoader() {
@@ -86,9 +98,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 	/**
-	 * Return the ClassLoader to load class path resources with.
-	 * <p>Will get passed to ClassPathResource's constructor for all
-	 * ClassPathResource objects created by this resource loader.
+	 * 获取上下文对象，如果 this.classLoader == null，就获取一个最新的资源解析器
 	 * @see ClassPathResource
 	 */
 	@Override
@@ -111,8 +121,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 	/**
-	 * Return the collection of currently registered protocol resolvers,
-	 * allowing for introspection as well as modification.
+	 * 返回协议解析器集合，允许修改
 	 * @since 4.3
 	 */
 	public Collection<ProtocolResolver> getProtocolResolvers() {
@@ -140,6 +149,11 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 
+	/**
+	 * 通过资源位置获取一个resource对象
+	 * @param location the resource location
+	 * @return
+	 */
 	@Override
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
@@ -155,6 +169,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 			return getResourceByPath(location);
 		}
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
+			// 创建一个 ClassPathResource对象
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {

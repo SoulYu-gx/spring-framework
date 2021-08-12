@@ -146,8 +146,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	private final Set<Class<?>> ignoredDependencyTypes = new HashSet<>();
 
 	/**
-	 * Dependency interfaces to ignore on dependency check and autowire, as Set of
-	 * Class objects. By default, only the BeanFactory interface is ignored.
+	 * 忽略依赖的接口
+	 * @see AbstractAutowireCapableBeanFactory#AbstractAutowireCapableBeanFactory()
 	 */
 	private final Set<Class<?>> ignoredDependencyInterfaces = new HashSet<>();
 
@@ -169,21 +169,26 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 
 	/**
-	 * Create a new AbstractAutowireCapableBeanFactory.
+	 * 实例化
+	 * 忽略自动装配依赖的接口
 	 */
 	public AbstractAutowireCapableBeanFactory() {
 		super();
+		// 忽略以下接口
 		ignoreDependencyInterface(BeanNameAware.class);
 		ignoreDependencyInterface(BeanFactoryAware.class);
 		ignoreDependencyInterface(BeanClassLoaderAware.class);
 	}
 
 	/**
-	 * Create a new AbstractAutowireCapableBeanFactory with the given parent.
+	 * 1、添加忽略自动装配接口
+	 * 2、设置父类bean工厂
 	 * @param parentBeanFactory parent bean factory, or {@code null} if none
 	 */
 	public AbstractAutowireCapableBeanFactory(@Nullable BeanFactory parentBeanFactory) {
+		// 调用自己无参构造
 		this();
+		// 设置父bean工厂
 		setParentBeanFactory(parentBeanFactory);
 	}
 
@@ -266,12 +271,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
-	 * Ignore the given dependency interface for autowiring.
-	 * <p>This will typically be used by application contexts to register
-	 * dependencies that are resolved in other ways, like BeanFactory through
-	 * BeanFactoryAware or ApplicationContext through ApplicationContextAware.
-	 * <p>By default, only the BeanFactoryAware interface is ignored.
-	 * For further types to ignore, invoke this method for each type.
+	 * 忽略自动装配的接口
+	 * 调用方：1、{@link AbstractAutowireCapableBeanFactory#AbstractAutowireCapableBeanFactory()}
 	 * @see org.springframework.beans.factory.BeanFactoryAware
 	 * @see org.springframework.context.ApplicationContextAware
 	 */

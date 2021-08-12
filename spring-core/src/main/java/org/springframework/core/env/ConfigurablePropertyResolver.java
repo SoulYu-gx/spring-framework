@@ -88,17 +88,15 @@ public interface ConfigurablePropertyResolver extends PropertyResolver {
 	void setIgnoreUnresolvableNestedPlaceholders(boolean ignoreUnresolvableNestedPlaceholders);
 
 	/**
-	 * Specify which properties must be present, to be verified by
+	 * 设置必须存在的属性
+	 * 将会在下方法中校验，如果必须属性不存在，将会抛出异常
 	 * {@link #validateRequiredProperties()}.
 	 */
 	void setRequiredProperties(String... requiredProperties);
 
 	/**
-	 * Validate that each of the properties specified by
-	 * {@link #setRequiredProperties} is present and resolves to a
-	 * non-{@code null} value.
-	 * @throws MissingRequiredPropertiesException if any of the required
-	 * properties are not resolvable.
+	 * 验证必须的属性，如果必须属性有不存在的，将会抛出异常
+	 * @throws MissingRequiredPropertiesException
 	 */
 	void validateRequiredProperties() throws MissingRequiredPropertiesException;
 
