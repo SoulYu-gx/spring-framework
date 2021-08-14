@@ -6,6 +6,7 @@
 	    http://www.springframework.org/schema/beans/spring-beans.xsd
 ">
 
+
 	<bean id="a" class="com.soulyu.bean.A">
 		<property name="b" ref="b"/>
 	</bean>

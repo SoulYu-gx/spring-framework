@@ -175,7 +175,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
     /**
-     * Map of bean definition objects, keyed by bean name.
+     * 待注册的bean信息
+     * @see DefaultListableBeanFactory#registerBeanDefinition(java.lang.String, org.springframework.beans.factory.config.BeanDefinition)
      */
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
 
@@ -195,7 +196,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     private final Map<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
 
     /**
-     * List of bean definition names, in registration order.
+     * 定义的所有beanName
      */
     private volatile List<String> beanDefinitionNames = new ArrayList<>(256);
 
@@ -1012,7 +1013,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                     removeManualSingletonName(beanName);
                 }
             } else {
-                // Still in startup registration phase
+                // 注册bd
                 this.beanDefinitionMap.put(beanName, beanDefinition);
                 this.beanDefinitionNames.add(beanName);
                 removeManualSingletonName(beanName);
@@ -1146,7 +1147,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 }
             }
         } else {
-            // Still in startup registration phase
+            // TODO
             if (condition.test(this.manualSingletonNames)) {
                 action.accept(this.manualSingletonNames);
             }

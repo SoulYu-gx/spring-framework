@@ -572,7 +572,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
             // 准备上下文以便刷新, 基础信息的设置, 当前可直接跳过
             prepareRefresh();
 
-            // 创建bean 工厂，解析spring.xml 的信息在此
+            // 获取一个新的bean工厂，加载bean定义放入注册表
             ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
             // bean工厂的一些前置处理
