@@ -53,7 +53,7 @@ import org.springframework.util.ObjectUtils;
 public class OrderComparator implements Comparator<Object> {
 
 	/**
-	 * Shared default instance of {@code OrderComparator}.
+	 * 默认的排序规则
 	 */
 	public static final OrderComparator INSTANCE = new OrderComparator();
 
@@ -68,6 +68,12 @@ public class OrderComparator implements Comparator<Object> {
 		return (o1, o2) -> doCompare(o1, o2, sourceProvider);
 	}
 
+	/**
+	 * 排序
+	 * @param o1
+	 * @param o2
+	 * @return
+	 */
 	@Override
 	public int compare(@Nullable Object o1, @Nullable Object o2) {
 		return doCompare(o1, o2, null);

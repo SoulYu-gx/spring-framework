@@ -215,15 +215,17 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     }
 
     private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
-        if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) { // import标签
+        if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
+            // import标签
             importBeanDefinitionResource(ele);
-        } else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) { // alias标签
+        } else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
+            // alias标签
             processAliasRegistration(ele);
-        } else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) { // bean标签
+        } else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
             // 处理bean的定义
             processBeanDefinition(ele, delegate);
-        } else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) { // beans标签
-            // recurse
+        } else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
+            // 子 beans 标签
             doRegisterBeanDefinitions(ele);
         }
     }
@@ -328,7 +330,6 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
         if (bdHolder != null) {
             bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
             try {
-                // Register the final decorated instance.
                 // 将bean 信息放到待注册区域
                 BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
             } catch (BeanDefinitionStoreException ex) {

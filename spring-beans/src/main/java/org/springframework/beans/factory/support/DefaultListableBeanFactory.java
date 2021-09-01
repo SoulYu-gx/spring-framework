@@ -530,7 +530,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
     @Override
     public String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
-        if (!isConfigurationFrozen() || type == null || !allowEagerInit) {
+        if (!isConfigurationFrozen() || type == null || !allowEagerInit) { // 未冻结配置 或者 type == null 获取
             return doGetBeanNamesForType(ResolvableType.forRawClass(type), includeNonSingletons, allowEagerInit);
         }
         Map<Class<?>, String[]> cache =
@@ -546,12 +546,19 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         return resolvedBeanNames;
     }
 
+    /**
+     * 根据 class 对象获取 bean定义
+     * @param type class 对象包装器
+     * @param includeNonSingletons 是否包括其他非单利的对象
+     * @param allowEagerInit
+     * @return
+     */
     private String[] doGetBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
         List<String> result = new ArrayList<>();
 
         // Check all bean definitions.
         for (String beanName : this.beanDefinitionNames) {
-            // Only consider bean as eligible if the bean name is not defined as alias for some other bean.
+            // beanName 未定义别名
             if (!isAlias(beanName)) {
                 try {
                     RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
@@ -840,6 +847,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         return resolver.isAutowireCandidate(holder, descriptor);
     }
 
+    /**
+     * 根据 beanName 获取bd
+     * @param beanName 定义好的 beanName
+     * @return bd
+     * @throws NoSuchBeanDefinitionException
+     */
     @Override
     public BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
         BeanDefinition bd = this.beanDefinitionMap.get(beanName);
@@ -901,17 +914,14 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             logger.trace("Pre-instantiating singletons in " + this);
         }
 
-        // Iterate over a copy to allow for init methods which in turn register new bean definitions.
-        // While this may not be part of the regular factory bootstrap, it does otherwise work fine.
-//		TODO 创建 beanDefinitionNames 的副本 beanNames 用于后续的遍历，以允许 init 等方法注册新的 bean 定义
+		// 创建 beanDefinitionNames 的副本 beanNames 用于后续的遍历，以允许 init 等方法注册新的 bean 定义
         List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
-        // Trigger initialization of all non-lazy singleton beans...
-//		TODO 遍历 beanNames，触发所有非懒加载单利bean初始化
+        // 遍历 beanNames，触发所有非懒加载单利bean初始化
         for (String beanName : beanNames) {
-//			TODO 获取 beanName 对应的 MergedBeanDefinition
+            // 获取 beanName 对应的 MergedBeanDefinition
             RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
-//			TODO bd 对应的 Bean 实例：非抽象类 && 是单例 && 非懒加载
+            // bd 对应的 Bean 实例：非抽象类 && 是单例 && 非懒加载
             if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
                 // 判断当前 beanName 是否为 FactoryBean
                 if (isFactoryBean(beanName)) {
